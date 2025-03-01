@@ -8,10 +8,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -19,6 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -45,35 +51,69 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private class Gallery (galleryName: String, galleryImages: Array<Int>) {
+    val name = galleryName
+
+    val images = galleryImages
+
+}
+
 @Composable
 fun ArtGallery(modifier: Modifier = Modifier) {
-    val imageSetCity = arrayOf(
-        R.drawable.city1,
-        R.drawable.city2,
-        R.drawable.city3
+    val galleries = arrayOf(
+        Gallery(
+            "City Landscapes",
+            arrayOf(
+                R.drawable.city1,
+                R.drawable.city2,
+                R.drawable.city3
+            )
+        ),
+        Gallery(
+            "Mountain Landscapes",
+            arrayOf(
+                R.drawable.mountain1,
+                R.drawable.mountain2,
+                R.drawable.mountain3,
+                R.drawable.mountain4
+            )
+        ),
+        Gallery(
+            "Island Landscapes",
+            arrayOf(
+                R.drawable.beach1,
+                R.drawable.beach2,
+                R.drawable.beach3
+            )
+        )
     )
+
+    var galleryNumber by remember { mutableIntStateOf(0) }
+
     Column (
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ){
         Column (
             modifier = modifier
                 .padding(top = 16.dp)
-                .fillMaxHeight(0.6F)
+                .fillMaxHeight(0.7F)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            for(image in imageSetCity){
+            for(image in galleries[galleryNumber].images){
                 Image(
                     painter = painterResource(image),
                     contentDescription = null,
                     modifier = modifier
                         .fillMaxWidth()
+                        .padding(4.dp)
                 )
             }
         }
         Text(
-            text = "City Landscapes",
+            text = galleries[galleryNumber].name,
             textAlign = TextAlign.Center,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
@@ -88,16 +128,40 @@ fun ArtGallery(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ){
-            NavigateGallery({}, "Previous")
-            NavigateGallery({}, "Next")
+            NavigateGallery(
+                {
+                    if(galleryNumber == 0){
+                        galleryNumber = 0
+                    }else{
+                        galleryNumber -= 1
+                    }
+                },
+                "Previous",
+                modifier = Modifier
+                    .width(110.dp)
+            )
+            Spacer(Modifier.fillMaxWidth(0.1f))
+            NavigateGallery(
+                {
+                    if(galleryNumber == galleries.lastIndex){
+                        galleryNumber = galleries.lastIndex
+                    }else{
+                        galleryNumber += 1
+                    }
+                },
+                "Next",
+                modifier = Modifier
+                    .width(110.dp)
+            )
         }
     }
 }
 
 @Composable
-fun NavigateGallery(onClick: () -> Unit, descriptor: String){
+fun NavigateGallery(onClick: () -> Unit, descriptor: String, modifier: Modifier){
     Button (
-        onClick = onClick
+        onClick = onClick,
+        modifier = modifier
     ) {
         Text(text = descriptor)
     }
